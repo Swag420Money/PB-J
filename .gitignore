@@ -12,8 +12,10 @@ dist
 dist-ssr
 *.local
 
-# Backend server: secrets and locally-processed footage/renders never
+# Frontend + backend secrets (Clerk keys, Twelve Labs key, etc.) never
 # belong in version control (mirrors style-test/.gitignore).
+.env
+.env.local
 server/.env
 server/data/uploads/*
 server/data/renders/*

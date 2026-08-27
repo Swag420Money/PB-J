@@ -6,6 +6,7 @@ import path from "node:path";
 import os from "node:os";
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
+import { clerkMiddleware, getAuth } from "@clerk/express";
 
 import { UPLOADS_DIR, RENDERS_DIR, TMP_DIR, TRAINING_FILES_DIR, ANALYSIS_MANIFEST_PATH } from "./paths.js";
 import { probe, compressForUnderstanding, trimAndNormalize, concatSegments, remuxFaststart, type FitMode } from "./ffmpeg.js";
@@ -56,6 +57,13 @@ const app = express();
 // perfectly valid.
 app.use(cors({ exposedHeaders: ["Content-Range", "Accept-Ranges", "Content-Length"] }));
 app.use(express.json({ limit: "10mb" }));
+// Reads CLERK_SECRET_KEY from env automatically (dotenv/config above has
+// already loaded server/.env). Non-blocking: it attaches req.auth to every
+// request but doesn't reject unauthenticated ones — none of the existing
+// upload/render/etc. routes are gated behind auth in this pass, only the
+// new /api/auth/whoami below (added specifically to prove the backend can
+// verify a real Clerk session, not just that the SDK is installed).
+app.use(clerkMiddleware());
 
 const upload = multer({ storage: multer.diskStorage({ destination: UPLOADS_DIR, filename: (_req, file, cb) => {
   cb(null, `${randomUUID()}-${file.originalname.replace(/[^a-zA-Z0-9._-]/g, "_")}`);
@@ -713,6 +721,22 @@ app.get("/api/training/learned-adjustments", async (_req, res) => {
 
 app.get("/api/health", (_req, res) => {
   res.json({ ok: true, hasApiKey: !!API_KEY });
+});
+
+// Proves the backend can actually verify a real Clerk session token, not
+// just that the SDK is installed. clerkMiddleware() (registered above)
+// decodes any session token present but never blocks the request itself —
+// the explicit 401 here is what actually enforces auth for this route.
+// (Not using @clerk/express's requireAuth(): it's deprecated in this SDK
+// version and defaults to a 302 redirect-to-sign-in rather than a JSON
+// 401, which is wrong for an API endpoint like this one.)
+app.get("/api/auth/whoami", (req, res) => {
+  const { userId } = getAuth(req);
+  if (!userId) {
+    res.status(401).json({ error: "Not signed in" });
+    return;
+  }
+  res.json({ userId });
 });
 
 function lanAddress(): string | null {

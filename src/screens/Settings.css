@@ -52,9 +52,25 @@
   justify-content: center;
 }
 
+.pbj-settings__avatar-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pbj-settings__name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--pbj-text);
+  text-align: center;
+}
+
 .pbj-settings__email {
   font-size: 14px;
   color: var(--pbj-text-secondary);
+  text-align: center;
+  display: block;
 }
 
 .pbj-settings__card {

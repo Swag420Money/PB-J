@@ -117,3 +117,12 @@ textarea {
     transform: rotate(360deg);
   }
 }
+
+/* Brief window while Clerk checks for an existing session on first paint —
+   intentionally blank rather than a spinner, since it should resolve in a
+   frame or two and a flashing spinner would be more distracting than a
+   plain background. */
+.pbj-auth-loading {
+  min-height: 100dvh;
+  background: var(--pbj-bg);
+}

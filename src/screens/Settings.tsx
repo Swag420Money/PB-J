@@ -1,22 +1,27 @@
+import { useUser, useClerk } from "@clerk/clerk-react";
 import { TopBar } from "../components/TopBar";
 import { Button } from "../components/Button";
-import { MOCK_ACCOUNT } from "../data/mockAccount";
+import { MOCK_BILLING } from "../data/mockAccount";
 import "./Settings.css";
 
 export function Settings({
   onBack,
-  onSignOut,
   onOpenStyleTraining,
 }: {
   onBack: () => void;
-  onSignOut: () => void;
   onOpenStyleTraining: () => void;
 }) {
+  const { user } = useUser();
+  const { signOut } = useClerk();
+
   const pct = Math.min(
     100,
-    Math.round((MOCK_ACCOUNT.minutesUsed / MOCK_ACCOUNT.minutesLimit) * 100)
+    Math.round((MOCK_BILLING.minutesUsed / MOCK_BILLING.minutesLimit) * 100)
   );
-  const minutesLeft = Math.max(0, MOCK_ACCOUNT.minutesLimit - MOCK_ACCOUNT.minutesUsed);
+  const minutesLeft = Math.max(0, MOCK_BILLING.minutesLimit - MOCK_BILLING.minutesUsed);
+
+  const email = user?.primaryEmailAddress?.emailAddress ?? "";
+  const displayName = user?.fullName || email;
 
   return (
     <div className="pbj-settings">
@@ -29,16 +34,23 @@ export function Settings({
         </div>
 
         <div className="pbj-settings__avatar-row">
-          <div className="pbj-settings__avatar">
-            {MOCK_ACCOUNT.email.charAt(0).toUpperCase()}
+          {user?.imageUrl ? (
+            <img src={user.imageUrl} alt="" className="pbj-settings__avatar-img" />
+          ) : (
+            <div className="pbj-settings__avatar">
+              {(displayName || "?").charAt(0).toUpperCase()}
+            </div>
+          )}
+          <div>
+            {user?.fullName && <div className="pbj-settings__name">{user.fullName}</div>}
+            <span className="pbj-settings__email">{email}</span>
           </div>
-          <span className="pbj-settings__email">{MOCK_ACCOUNT.email}</span>
         </div>
 
         <section className="pbj-settings__card">
           <div className="pbj-settings__row">
             <span className="pbj-settings__row-label">subscription</span>
-            <span className="pbj-settings__tier-badge">{MOCK_ACCOUNT.tier}</span>
+            <span className="pbj-settings__tier-badge">{MOCK_BILLING.tier}</span>
           </div>
 
           <div className="pbj-settings__divider" />
@@ -47,7 +59,7 @@ export function Settings({
             <div className="pbj-settings__row">
               <span className="pbj-settings__row-label">minutes remaining</span>
               <span className="pbj-settings__row-value">
-                {minutesLeft} / {MOCK_ACCOUNT.minutesLimit}
+                {minutesLeft} / {MOCK_BILLING.minutesLimit}
               </span>
             </div>
             <div className="pbj-settings__meter">
@@ -60,7 +72,7 @@ export function Settings({
           style training
         </Button>
 
-        <Button variant="outline" fullWidth onClick={onSignOut}>
+        <Button variant="outline" fullWidth onClick={() => signOut()}>
           sign out
         </Button>
       </div>
