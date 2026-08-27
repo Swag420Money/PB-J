@@ -1,0 +1,65 @@
+.pbj-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  padding: 17px 24px;
+  border-radius: var(--pbj-radius-pill);
+  transition: transform 0.15s var(--pbj-ease), opacity 0.15s var(--pbj-ease),
+    box-shadow 0.15s var(--pbj-ease), background 0.15s var(--pbj-ease);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.pbj-btn:active {
+  transform: scale(0.97);
+}
+
+.pbj-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.pbj-btn--full {
+  width: 100%;
+}
+
+.pbj-btn--primary {
+  background: var(--pbj-accent);
+  color: #fff;
+  box-shadow: 0 10px 24px rgba(139, 92, 246, 0.28);
+}
+
+.pbj-btn--secondary {
+  background: var(--pbj-surface-elevated);
+  color: var(--pbj-text);
+  border: 1px solid var(--pbj-border-strong);
+}
+
+.pbj-btn--outline {
+  background: transparent;
+  color: var(--pbj-accent);
+  border: 1.5px solid var(--pbj-accent);
+}
+
+.pbj-btn--ghost {
+  background: transparent;
+  color: var(--pbj-text-secondary);
+  padding: 10px 14px;
+}
+
+.pbj-btn--danger {
+  background: rgba(214, 69, 69, 0.1);
+  color: var(--pbj-danger);
+}
+
+.pbj-btn__icon {
+  display: inline-flex;
+  align-items: center;
+}

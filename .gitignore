@@ -1,0 +1,39 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+*.local
+
+# Backend server: secrets and locally-processed footage/renders never
+# belong in version control (mirrors style-test/.gitignore).
+server/.env
+server/data/uploads/*
+server/data/renders/*
+server/data/tmp/*
+!server/data/uploads/.gitkeep
+!server/data/renders/.gitkeep
+!server/data/tmp/.gitkeep
+
+# Twelve Labs analysis cache: real content (scene descriptions of your own
+# footage) and can grow large — regenerable from source video, not something
+# to version.
+cache/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

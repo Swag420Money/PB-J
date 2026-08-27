@@ -1,0 +1,119 @@
+:root {
+  /* Forced light mode — dark mode intentionally disabled for now. */
+  color-scheme: light;
+
+  /* Accents — used sparingly for highlights, primary buttons, and active
+     states only. The base neutrals below do most of the visual work. */
+  --pbj-accent: #8b5cf6;
+  --pbj-accent-2: #f2a65a;
+
+  --pbj-bg: #ffffff;
+  --pbj-surface: #f5f5f5;
+  --pbj-surface-elevated: #ffffff;
+  --pbj-text: #1d1d1f;
+  --pbj-text-secondary: #8e8e93;
+  --pbj-text-tertiary: #aeaeb2;
+  --pbj-border: #e5e5ea;
+  --pbj-border-strong: #d1d1d6;
+  --pbj-danger: #d64545;
+  --pbj-success: #2fa86a;
+  --pbj-overlay-scrim: rgba(20, 16, 14, 0.45);
+
+  --pbj-radius-sm: 10px;
+  --pbj-radius-md: 16px;
+  --pbj-radius-lg: 22px;
+  --pbj-radius-xl: 28px;
+  --pbj-radius-pill: 999px;
+
+  --pbj-shadow-sm: 0 1px 2px rgba(20, 16, 14, 0.06), 0 1px 1px rgba(20, 16, 14, 0.04);
+  --pbj-shadow-md: 0 8px 24px rgba(20, 16, 14, 0.10), 0 2px 6px rgba(20, 16, 14, 0.06);
+  --pbj-shadow-lg: 0 20px 50px rgba(20, 16, 14, 0.18), 0 6px 16px rgba(20, 16, 14, 0.08);
+
+  --pbj-safe-top: env(safe-area-inset-top, 0px);
+  --pbj-safe-bottom: env(safe-area-inset-bottom, 0px);
+  --pbj-safe-left: env(safe-area-inset-left, 0px);
+  --pbj-safe-right: env(safe-area-inset-right, 0px);
+
+  --pbj-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+
+  --pbj-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--pbj-bg);
+  color: var(--pbj-text);
+  font-family: var(--pbj-font);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  overscroll-behavior-y: none;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+button {
+  font-family: inherit;
+}
+
+input,
+textarea {
+  font-family: inherit;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+@keyframes pbj-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes pbj-slide-up {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pbj-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.55;
+  }
+}
+
+@keyframes pbj-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

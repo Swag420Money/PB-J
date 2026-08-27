@@ -1,0 +1,60 @@
+.pbj-project-card {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pbj-project-card__thumb {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  border-radius: var(--pbj-radius-md);
+  overflow: hidden;
+  box-shadow: var(--pbj-shadow-sm);
+  transition: transform 0.15s var(--pbj-ease), box-shadow 0.15s var(--pbj-ease);
+}
+
+.pbj-project-card:active .pbj-project-card__thumb {
+  transform: scale(0.96);
+}
+
+.pbj-project-card__duration {
+  position: absolute;
+  right: 6px;
+  bottom: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(6px);
+  padding: 2px 6px;
+  border-radius: var(--pbj-radius-pill);
+}
+
+.pbj-project-card__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 0 1px;
+}
+
+.pbj-project-card__name {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--pbj-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pbj-project-card__date {
+  font-size: 11px;
+  color: var(--pbj-text-tertiary);
+}

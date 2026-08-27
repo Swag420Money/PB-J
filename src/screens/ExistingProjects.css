@@ -1,0 +1,43 @@
+.pbj-projects {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pbj-bg);
+}
+
+.pbj-projects__body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0 20px calc(var(--pbj-safe-bottom) + 24px);
+}
+
+.pbj-projects__hero {
+  padding: 4px 0 24px;
+}
+
+.pbj-projects__title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--pbj-text);
+  margin: 0 0 4px;
+}
+
+.pbj-projects__sub {
+  font-size: 14.5px;
+  color: var(--pbj-text-secondary);
+  margin: 0;
+}
+
+.pbj-projects__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px 8px;
+}
+
+.pbj-projects__empty {
+  font-size: 14.5px;
+  color: var(--pbj-text-secondary);
+  text-align: center;
+  padding: 40px 20px;
+}
