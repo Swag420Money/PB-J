@@ -103,7 +103,7 @@ export function StyleLibrary({ onBack }: { onBack: () => void }) {
                 autoFocus
               />
               <div className="pbj-style-lib__composer-actions">
-                <Button variant="outline" onClick={cancelPending} disabled={saving}>
+                <Button variant="secondary" onClick={cancelPending} disabled={saving}>
                   cancel
                 </Button>
                 <Button onClick={savePending} disabled={saving || !nameInput.trim()}>

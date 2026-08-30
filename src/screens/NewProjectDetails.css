@@ -1,0 +1,288 @@
+.pbj-np1 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pbj-bg);
+}
+
+.pbj-np1__file-input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* flex:1 on body is what pins the footer to the true viewport bottom,
+   matching Your Style / Teach It exactly (see the task report for the
+   measured comparison). The title stays put near the top; __middle is the
+   flex:1 child that absorbs whatever leftover height there is by
+   centering the footage+wheel content within itself — same pattern Teach
+   It's own dropzone-wrap already uses — rather than leaving a bare dead
+   gap above the footer (which naive flex:1-on-everything would). */
+.pbj-np1__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pbj-content-top) var(--pbj-gutter) 0;
+}
+
+.pbj-np1__middle {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: var(--pbj-space-4);
+}
+
+.pbj-np1__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pbj-space-1);
+}
+
+/* ---- title (editable headline) ---- */
+
+.pbj-np1__hero {
+  text-align: center;
+  animation: pbj-slide-up 0.5s var(--pbj-ease);
+}
+
+/* Shared type treatment for both the display button's text and the input
+   that replaces it in place, so nothing visibly shifts when editing starts. */
+.pbj-np1__title-display,
+.pbj-np1__title-input {
+  font-size: var(--pbj-type-header-size);
+  font-weight: var(--pbj-type-header-weight);
+  letter-spacing: var(--pbj-type-header-tracking);
+  line-height: var(--pbj-type-header-line);
+  color: var(--pbj-text);
+}
+
+.pbj-np1__title-display {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--pbj-space-1);
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  max-width: 100%;
+}
+
+.pbj-np1__title-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Subtle and secondary — it hints at editability, doesn't shout. */
+.pbj-np1__title-pencil {
+  flex-shrink: 0;
+  color: var(--pbj-text-tertiary);
+}
+
+.pbj-np1__title-input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  text-align: center;
+  border: none;
+  background: none;
+  padding: 0;
+  font-family: inherit;
+}
+
+.pbj-np1__title-input::placeholder {
+  color: var(--pbj-text-tertiary);
+}
+
+.pbj-np1__title-input:focus {
+  outline: none;
+}
+
+/* ---- footage tile ---- */
+
+.pbj-np1__dropzone-empty {
+  width: 65%;
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pbj-space-1);
+  border-radius: var(--pbj-radius-lg);
+  border: 1.5px dashed var(--pbj-border-strong);
+  background: var(--pbj-surface);
+  color: var(--pbj-text-secondary);
+  font-size: var(--pbj-type-caption-size);
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Filled state: a true 3-across CSS grid, not flex-wrap — exactly 3 tiles
+   per row every time (1fr columns), wrapping to additional rows as clips
+   are added, the trailing "+" tile flowing into the next open cell as
+   just another grid item (never its own orphaned row). Square tiles fall
+   out of the math for free: aspect-ratio:1/1 on each tile makes height
+   track the 1fr-computed width, no hardcoded px needed.
+
+   Capped at 2 visible rows (226px = 2 tile-heights + 1 row-gap at the
+   390px target: tile ~108.67px, gap 8px -> 2*108.67+8=225.33, rounded up)
+   — beyond 6 clips the grid scrolls vertically WITHIN ITS OWN BOUNDS,
+   never the page, and never pushes the slider/Next button off screen. */
+.pbj-np1__clip-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--pbj-space-1);
+  /* 226px of tiles (2 rows) + 8px padding budget on each side so the
+     delete badge's -6px top/right offset never clips against the
+     container's own boundary (setting overflow-y here also computes
+     overflow-x to auto per spec, so both axes need the clearance, not
+     just the scrolling one). Interior badges are already covered by the
+     8px inter-tile gap. */
+  max-height: 242px;
+  padding: var(--pbj-space-1);
+  margin: calc(-1 * var(--pbj-space-1));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pbj-np1__clip-tile-wrap {
+  position: relative;
+  aspect-ratio: 1 / 1;
+}
+
+.pbj-np1__clip-tile {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+  border-radius: var(--pbj-card-radius);
+  background-size: cover;
+  background-position: center;
+  display: flex;
+  align-items: flex-end;
+  padding: 6px;
+  overflow: hidden;
+}
+
+/* Sits on .pbj-np1__clip-tile-wrap (position:relative, overflow visible),
+   not on .pbj-np1__clip-tile (overflow:hidden) — see the JSX comment. */
+.pbj-np1__clip-delete {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 0;
+  cursor: pointer;
+  z-index: 2;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Mounts only once a real duration resolves (see the JSX) — a CSS
+   `transition` doesn't animate a freshly-inserted element (there's no
+   prior computed value to transition from), so this is a keyframe
+   animation instead, which plays on mount regardless. */
+.pbj-np1__clip-duration {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.45);
+  padding: 2px 5px;
+  border-radius: var(--pbj-radius-sm);
+  animation: pbj-pill-fade-in 200ms var(--pbj-ease);
+}
+
+@keyframes pbj-pill-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pbj-np1__clip-duration {
+    animation: none;
+  }
+}
+
+.pbj-np1__dropzone-add {
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--pbj-radius-lg);
+  border: 1.5px dashed var(--pbj-border-strong);
+  background: var(--pbj-surface);
+  color: var(--pbj-text);
+  font-size: 24px;
+  font-weight: 400;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pbj-np1__footage-total {
+  font-size: var(--pbj-type-caption-size);
+  color: var(--pbj-text-muted);
+  margin: 0;
+  text-align: center;
+}
+
+.pbj-np1__warning {
+  background: color-mix(in srgb, var(--pbj-danger) 8%, transparent);
+  border-radius: var(--pbj-card-radius);
+  padding: var(--pbj-space-1) var(--pbj-space-2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.pbj-np1__warning-text {
+  font-size: var(--pbj-type-caption-size);
+  font-weight: 600;
+  color: var(--pbj-danger);
+  margin: 0;
+}
+
+.pbj-np1__warning-actions {
+  display: flex;
+  gap: var(--pbj-space-2);
+}
+
+.pbj-np1__warning-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--pbj-text);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.pbj-np1__upgrade-note {
+  font-size: 11.5px;
+  color: var(--pbj-text-tertiary);
+  margin: 0;
+}
+
+/* ---- footer ---- */
+/* Bottom padding matches Your Style / Teach It exactly: env(safe-area-
+   inset-bottom) + 16px — see the task report for the measured comparison. */
+.pbj-np1__footer {
+  padding: var(--pbj-space-3) var(--pbj-gutter) calc(var(--pbj-safe-bottom) + var(--pbj-space-2));
+}

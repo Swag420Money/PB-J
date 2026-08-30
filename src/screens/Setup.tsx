@@ -53,24 +53,24 @@ export function Setup({
         </section>
 
         <section className="pbj-setup__section">
-          <SectionLabel title="length" />
+          <SectionLabel title="Length" />
           <DurationSlider value={targetDurationSec} onChange={onDurationChange} />
         </section>
 
         <section className="pbj-setup__section">
-          <SectionLabel title="describe the edit" />
+          <SectionLabel title="Describe the Edit" />
           <PromptBox value={prompt} onChange={onPromptChange} />
         </section>
 
         <section className="pbj-setup__section">
-          <SectionLabel title="style reference" badge="optional" />
+          <SectionLabel title="Style Reference" badge="Optional" />
           <StyleReferenceSection url={styleReferenceUrl} onUrlChange={onStyleReferenceUrlChange} />
         </section>
       </div>
 
       <div className="pbj-setup__footer">
         <Button fullWidth onClick={onSubmit} disabled={!canSubmit}>
-          generate edit ✨
+          Generate Edit ✨
         </Button>
       </div>
     </div>

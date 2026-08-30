@@ -107,7 +107,7 @@ export function ExportSheet({ open, onClose, onExport }: ExportSheetProps) {
         {phase === "exporting" && (
           <div className="pbj-sheet__status">
             <div className="pbj-sheet__spinner" />
-            <p>saving to your photo library…</p>
+            <p>Saving to Your Photo Library…</p>
           </div>
         )}
 
@@ -132,7 +132,7 @@ export function ExportSheet({ open, onClose, onExport }: ExportSheetProps) {
                 ? `choose "Save Video" to add ${savedFile} to your library`
                 : `${savedFile} saved to your downloads`}
             </p>
-            <Button fullWidth variant="outline" onClick={handleClose}>
+            <Button fullWidth variant="secondary" onClick={handleClose}>
               done
             </Button>
           </div>

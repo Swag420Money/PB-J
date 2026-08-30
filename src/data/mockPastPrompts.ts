@@ -4,7 +4,7 @@
 // Swap for a real usage-history lookup once accounts/persistence exist.
 
 export const MOCK_PAST_PROMPTS: string[] = [
-  "That golden-hour cinematic look from Beach Day Recap",
-  "Fast cuts like Weekend in Tulum, bold captions",
-  "Clean minimal style like Studio Session",
+  "That Golden-Hour Cinematic Look From Beach Day Recap",
+  "Fast Cuts Like Weekend in Tulum, Bold Captions",
+  "Clean Minimal Style Like Studio Session",
 ];

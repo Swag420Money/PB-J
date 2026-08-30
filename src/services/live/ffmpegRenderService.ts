@@ -23,7 +23,10 @@ export class FfmpegRenderService implements RenderService {
     const res = await apiFetch("/api/render", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ clips, exportOptions }),
+      // name: only meaningful to the backend for the initial preview
+      // render (no exportOptions) — that's the one it saves to the
+      // Dashboard's recent-activity list; see server/src/index.ts.
+      body: JSON.stringify({ clips, exportOptions, name: plan.prompt }),
     });
 
     const body: { videoUrl: string } = await res.json();

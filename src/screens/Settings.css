@@ -5,29 +5,32 @@
   background: var(--pbj-bg);
 }
 
+/* TopBar is a real in-flow, sticky element (not absolute/floating like
+   every other screen's back button), so it already reserves its own
+   height — content here only needs the standard 32px gap after it, not
+   the full --pbj-content-top (that would double-count the header-bar
+   zone TopBar already occupies). */
 .pbj-settings__body {
   flex: 1;
-  padding: 0 20px calc(var(--pbj-safe-bottom) + 24px);
+  padding: var(--pbj-space-4) var(--pbj-gutter) calc(var(--pbj-safe-bottom) + var(--pbj-space-3));
   display: flex;
   flex-direction: column;
-  gap: 26px;
-}
-
-.pbj-settings__hero {
-  padding: 4px 0 4px;
+  gap: var(--pbj-space-block);
 }
 
 .pbj-settings__hero-title {
-  font-size: 28px;
-  font-weight: 800;
-  letter-spacing: -0.02em;
+  font-size: var(--pbj-type-header-size);
+  font-weight: var(--pbj-type-header-weight);
+  letter-spacing: var(--pbj-type-header-tracking);
+  line-height: var(--pbj-type-header-line);
   color: var(--pbj-text);
-  margin: 0 0 4px;
+  margin: 0 0 var(--pbj-space-header-subhead);
 }
 
 .pbj-settings__hero-sub {
-  font-size: 14.5px;
-  color: var(--pbj-text-secondary);
+  font-size: var(--pbj-type-subhead-size);
+  font-weight: var(--pbj-type-subhead-weight);
+  color: var(--pbj-text-muted);
   margin: 0;
 }
 
@@ -35,8 +38,8 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 10px;
-  padding: 10px 0 4px;
+  gap: var(--pbj-space-1);
+  padding: var(--pbj-space-1) 0;
 }
 
 .pbj-settings__avatar {
@@ -60,76 +63,18 @@
 }
 
 .pbj-settings__name {
-  font-size: 16px;
-  font-weight: 700;
+  font-size: var(--pbj-type-body-size);
+  font-weight: var(--pbj-type-body-weight);
   color: var(--pbj-text);
   text-align: center;
 }
 
 .pbj-settings__email {
-  font-size: 14px;
-  color: var(--pbj-text-secondary);
+  font-size: var(--pbj-type-caption-size);
+  color: var(--pbj-text-muted);
   text-align: center;
   display: block;
 }
 
-.pbj-settings__card {
-  background: var(--pbj-surface);
-  border-radius: var(--pbj-radius-lg);
-  padding: 16px;
-  display: flex;
-  flex-direction: column;
-}
-
-.pbj-settings__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.pbj-settings__row--stack {
-  flex-direction: column;
-  align-items: stretch;
-  gap: 10px;
-}
-
-.pbj-settings__row-label {
-  font-size: 14.5px;
-  color: var(--pbj-text);
-  font-weight: 500;
-}
-
-.pbj-settings__row-value {
-  font-size: 14px;
-  color: var(--pbj-text-secondary);
-  font-variant-numeric: tabular-nums;
-}
-
-.pbj-settings__tier-badge {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--pbj-accent);
-  background: color-mix(in srgb, var(--pbj-accent) 12%, transparent);
-  padding: 4px 10px;
-  border-radius: var(--pbj-radius-pill);
-}
-
-.pbj-settings__divider {
-  height: 1px;
-  background: var(--pbj-border);
-  margin: 14px 0;
-}
-
-.pbj-settings__meter {
-  height: 6px;
-  border-radius: var(--pbj-radius-pill);
-  background: var(--pbj-border);
-  overflow: hidden;
-}
-
-.pbj-settings__meter-fill {
-  height: 100%;
-  background: var(--pbj-accent);
-  border-radius: var(--pbj-radius-pill);
-}
+/* Subscription/usage card moved to components/UsageMeter.css — shared
+   with the Dashboard now instead of duplicated here. */

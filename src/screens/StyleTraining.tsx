@@ -157,7 +157,7 @@ function ReviewPanel({
       )}
 
       <div className="pbj-training__review-actions">
-        <Button variant="outline" onClick={reject} disabled={busy}>
+        <Button variant="secondary" onClick={reject} disabled={busy}>
           reject
         </Button>
         <Button onClick={approve} disabled={busy}>

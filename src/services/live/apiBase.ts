@@ -14,8 +14,29 @@ interface FailureDetail {
   message: string;
 }
 
+// The service layer (uploadClient, ffmpegRenderService, projectsService,
+// ...) is a set of plain functions, not React components/hooks — they
+// can't call useAuth() to get a session token. ClerkProvider exposes the
+// same client imperatively as window.Clerk once loaded, which is the
+// supported way to reach a token from non-component code. Declared here
+// rather than pulling in a full @clerk/clerk-js type dependency for one
+// narrow use.
+declare global {
+  interface Window {
+    Clerk?: { session?: { getToken(): Promise<string | null> } };
+  }
+}
+
+async function authHeaders(): Promise<HeadersInit> {
+  const token = await window.Clerk?.session?.getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 export async function apiFetch(path: string, init?: RequestInit): Promise<Response> {
-  const res = await fetch(`${apiBase()}${path}`, init);
+  const res = await fetch(`${apiBase()}${path}`, {
+    ...init,
+    headers: { ...(await authHeaders()), ...init?.headers },
+  });
   if (!res.ok) {
     let message = `${res.status} ${res.statusText}`;
     try {

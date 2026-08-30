@@ -75,9 +75,7 @@
   position: relative;
   width: 60px;
   height: 60px;
-  border-radius: 20px;
-  object-fit: cover;
-  box-shadow: var(--pbj-shadow-lg);
+  object-fit: contain;
   animation: pbj-mark-breathe 2.2s ease-in-out infinite;
 }
 

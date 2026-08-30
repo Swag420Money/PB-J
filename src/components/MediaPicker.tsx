@@ -88,16 +88,16 @@ export function MediaPicker({ assets, onChange }: MediaPickerProps) {
               />
             </svg>
           </div>
-          <span className="pbj-picker__empty-title">tap to add photos & videos</span>
-          <span className="pbj-picker__empty-sub">from your library</span>
+          <span className="pbj-picker__empty-title">Tap to Add Photos & Videos</span>
+          <span className="pbj-picker__empty-sub">From Your Library</span>
         </button>
       ) : assets.length === 0 && uploading ? (
         <div className="pbj-picker__empty">
           <div className="pbj-picker__empty-icon">
             <span className="pbj-picker__spinner" />
           </div>
-          <span className="pbj-picker__empty-title">uploading…</span>
-          <span className="pbj-picker__empty-sub">feel free to keep going — this keeps running in the background</span>
+          <span className="pbj-picker__empty-title">Uploading…</span>
+          <span className="pbj-picker__empty-sub">Feel Free to Keep Going — This Keeps Running in the Background</span>
         </div>
       ) : (
         <>
@@ -148,7 +148,7 @@ export function MediaPicker({ assets, onChange }: MediaPickerProps) {
             </button>
           </div>
           <p className="pbj-picker__count">
-            {assets.length} item{assets.length === 1 ? "" : "s"} ready
+            {assets.length} Item{assets.length === 1 ? "" : "s"} Ready
             {uploading ? ` — more uploading in the background…` : ""}
           </p>
         </>

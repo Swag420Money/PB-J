@@ -1,0 +1,93 @@
+.pbj-home {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pbj-bg);
+  position: relative;
+}
+
+.pbj-home__settings {
+  position: fixed;
+  top: calc(var(--pbj-safe-top) + var(--pbj-gutter));
+  right: var(--pbj-gutter);
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pbj-tap-min);
+  height: var(--pbj-tap-min);
+  border-radius: 50%;
+  border: none;
+  background: var(--pbj-surface);
+  color: var(--pbj-text-secondary);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background 0.15s var(--pbj-ease), transform 0.12s var(--pbj-ease);
+}
+
+.pbj-home__settings:active {
+  transform: scale(0.92);
+  background: var(--pbj-border);
+}
+
+/* Content anchors top-to-bottom (logo near the top, actions pinned at the
+   bottom) rather than floating as one centered block mid-screen — this was
+   the worst dead-space offender in the app. */
+.pbj-home__center {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--pbj-content-top) var(--pbj-gutter) calc(var(--pbj-safe-bottom) + var(--pbj-space-2));
+}
+
+.pbj-home__mark {
+  width: 64px;
+  height: 64px;
+  object-fit: contain;
+  animation: pbj-slide-up 0.5s var(--pbj-ease);
+}
+
+.pbj-home__cooking-strip-wrap {
+  width: 100%;
+  border-radius: var(--pbj-radius-pill);
+}
+
+.pbj-home__cooking-strip {
+  width: 100%;
+  min-height: var(--pbj-tap-min);
+  display: flex;
+  align-items: center;
+  gap: var(--pbj-space-1);
+  background: transparent;
+  border: none;
+  padding: 0 var(--pbj-space-2);
+  font-size: var(--pbj-type-caption-size);
+  font-weight: 600;
+  color: var(--pbj-text);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pbj-home__cooking-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--pbj-accent-2);
+  animation: pbj-pulse 1.4s ease-in-out infinite;
+  flex-shrink: 0;
+}
+
+.pbj-home__cooking-arrow {
+  margin-left: auto;
+  color: var(--pbj-text-tertiary);
+  font-size: 18px;
+}
+
+.pbj-home__actions {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pbj-space-button);
+}

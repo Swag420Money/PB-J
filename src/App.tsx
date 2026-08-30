@@ -1,120 +1,149 @@
-import { useState, type ReactElement } from "react";
+import { useState } from "react";
 import { useAuth } from "@clerk/clerk-react";
-import type { ProjectFlow } from "./state/useProjectFlow";
-import { useProjectFlow } from "./state/useProjectFlow";
-import { Landing } from "./screens/Landing";
-import { Setup } from "./screens/Setup";
-import { Processing } from "./screens/Processing";
-import { Ready } from "./screens/Ready";
-import { Results } from "./screens/Results";
-import { Settings } from "./screens/Settings";
-import { ExistingProjects } from "./screens/ExistingProjects";
-import { StyleLibrary } from "./screens/StyleLibrary";
-import { StyleTraining } from "./screens/StyleTraining";
+import { Splash } from "./screens/Splash";
 import { SignIn } from "./screens/SignIn";
-import { SignUp } from "./screens/SignUp";
+import { YourStyle } from "./screens/YourStyle";
+import { TeachIt } from "./screens/TeachIt";
+import { Home } from "./screens/Home";
+import { NewProject } from "./screens/NewProject";
+import { Cooking } from "./screens/Cooking";
+import { Studio } from "./screens/Studio";
+import { ExistingProjects } from "./screens/ExistingProjects";
+import { Settings } from "./screens/Settings";
+import { useAppFlow, type NewProjectDraft } from "./state/useAppFlow";
 
-/** Real auth gate: signed-out users only ever see SignIn/SignUp, never the
- *  app underneath. `isLoaded` guards against a flash of the sign-in screen
- *  while Clerk is still checking for an existing session on first paint —
- *  without it, a refreshed-but-still-signed-in user would briefly see
- *  SignIn before snapping to Landing. */
 function App() {
+  const [splashDone, setSplashDone] = useState(false);
+  // Dev-only test bypass (see SignIn.tsx) — entirely local React state, not
+  // a real Clerk session. Never reachable outside import.meta.env.DEV, so
+  // this branch is dead and stripped in a production build.
+  const [devBypass, setDevBypass] = useState(false);
+  // Set only when THIS mount just completed a real email sign-up — lets
+  // AuthenticatedApp force the "your style"/"teach it" first-run flow even
+  // if this browser's stale onboarding flag says otherwise (see
+  // useAppFlow's forceOnboarding doc comment).
+  const [justSignedUp, setJustSignedUp] = useState(false);
   const { isLoaded, isSignedIn } = useAuth();
-  const [authMode, setAuthMode] = useState<"signIn" | "signUp">("signIn");
+
+  // Shown on every screen in a dev build (Splash included) — tied to the
+  // build itself, not to whether the dev-bypass shortcut has fired yet, so
+  // it doesn't wait for AuthenticatedApp to mount. Statically false (and
+  // stripped) in a production build.
+  const devBadge = import.meta.env.DEV && <div className="pbj-dev-badge">DEV MODE</div>;
+
+  if (!splashDone) {
+    return (
+      <>
+        {devBadge}
+        <Splash onDone={() => setSplashDone(true)} />
+      </>
+    );
+  }
+
+  if (devBypass) {
+    return (
+      <>
+        {devBadge}
+        <AuthenticatedApp forceOnboarding />
+      </>
+    );
+  }
 
   if (!isLoaded) {
     return <div className="pbj-auth-loading" aria-hidden="true" />;
   }
 
   if (!isSignedIn) {
-    return authMode === "signIn" ? (
-      <SignIn onSwitchToSignUp={() => setAuthMode("signUp")} />
-    ) : (
-      <SignUp onSwitchToSignIn={() => setAuthMode("signIn")} />
+    return (
+      <>
+        {devBadge}
+        <SignIn
+          onDevBypass={() => setDevBypass(true)}
+          onSignUpComplete={() => setJustSignedUp(true)}
+        />
+      </>
     );
   }
 
-  return <AuthenticatedApp />;
-}
-
-function AuthenticatedApp() {
-  const flow = useProjectFlow();
-
-  const landing = (
-    <Landing
-      onNewProject={flow.startNewProject}
-      onOpenProjects={flow.openProjectsGrid}
-      onOpenSettings={flow.openSettings}
-      onOpenStyleLibrary={flow.openStyleLibrary}
-    />
+  return (
+    <>
+      {devBadge}
+      <AuthenticatedApp forceOnboarding={justSignedUp} />
+    </>
   );
-
-  return renderScreen(flow, landing);
 }
 
-function renderScreen(flow: ProjectFlow, landing: ReactElement) {
+const EMPTY_DRAFT: NewProjectDraft = {
+  title: "New Project",
+  clipCount: 0,
+  totalFootageSec: 0,
+  durationSec: 60,
+  durationCapMin: 1,
+  prompt: "",
+  styleIds: [],
+  clips: [],
+};
+
+function AuthenticatedApp({ forceOnboarding }: { forceOnboarding: boolean }) {
+  const flow = useAppFlow(forceOnboarding);
+
   switch (flow.stage) {
-    case "setup":
+    case "yourStyle":
       return (
-        <Setup
-          assets={flow.assets}
-          targetDurationSec={flow.targetDurationSec}
-          prompt={flow.prompt}
-          styleReferenceUrl={flow.styleReferenceUrl}
-          onAssetsChange={flow.setAssets}
-          onDurationChange={flow.setTargetDurationSec}
-          onPromptChange={flow.setPrompt}
-          onStyleReferenceUrlChange={flow.setStyleReferenceUrl}
-          onSubmit={flow.submitForProcessing}
-          onExitToLanding={flow.reset}
+        <YourStyle
+          onDone={(selected) => {
+            flow.setCreatorStyles(selected);
+            flow.goToTeachIt();
+          }}
         />
       );
 
-    case "processing":
-      return <Processing step={flow.processingStep} />;
+    case "teachIt":
+      return <TeachIt onBack={flow.goToYourStyle} onDone={() => flow.goToHome()} />;
 
-    case "ready":
-      return flow.result ? (
-        <Ready result={flow.result} onContinue={flow.proceedToResults} />
-      ) : (
-        landing
+    case "home":
+      return (
+        <Home
+          onNewProject={flow.goToNewProject}
+          onOpenProjects={flow.goToProjects}
+          onOpenSettings={flow.goToSettings}
+          onOpenCooking={() => flow.goToCooking(flow.newProjectDraft ?? EMPTY_DRAFT)}
+        />
       );
 
-    case "results":
-      return flow.result ? (
-        <Results
-          result={flow.result}
-          onResultChange={flow.setResult}
-          onStartOver={flow.reset}
-          onDiscardAndRestart={flow.discardAndRestart}
+    case "newProject":
+      return (
+        <NewProject
+          initialDraft={flow.newProjectDraft}
+          onBack={flow.goToHome}
+          onSubmit={flow.goToCooking}
         />
-      ) : (
-        landing
+      );
+
+    case "cooking":
+      return (
+        <Cooking
+          prompt={flow.newProjectDraft?.prompt ?? ""}
+          onCancel={flow.goToHome}
+          onEdit={flow.goToNewProject}
+          onComplete={flow.goToStudio}
+        />
+      );
+
+    case "studio":
+      return (
+        <Studio
+          onBack={flow.goToHome}
+          initialClips={flow.newProjectDraft?.clips ?? []}
+          creatorStyles={flow.creatorStyles}
+        />
       );
 
     case "projects":
-      return (
-        <ExistingProjects onOpenProject={flow.openExistingProject} onBack={flow.backToLanding} />
-      );
-
-    case "styleLibrary":
-      return <StyleLibrary onBack={flow.backToLanding} />;
+      return <ExistingProjects onBack={flow.goToHome} onOpenProject={flow.goToStudio} />;
 
     case "settings":
-      return (
-        <Settings
-          onBack={flow.closeSettings}
-          onOpenStyleTraining={flow.openStyleTraining}
-        />
-      );
-
-    case "styleTraining":
-      return <StyleTraining onBack={flow.closeStyleTraining} />;
-
-    case "landing":
-    default:
-      return landing;
+      return <Settings onBack={flow.goToHome} />;
   }
 }
 

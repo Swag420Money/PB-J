@@ -23,6 +23,11 @@ export const TRAINING_DIR = path.join(CACHE_DIR, "training");
 export const TRAINING_FILES_DIR = path.join(TRAINING_DIR, "files");
 export const TRAINING_MANIFEST_PATH = path.join(TRAINING_DIR, "projects.json");
 export const LEARNED_ADJUSTMENTS_PATH = path.join(TRAINING_DIR, "learned-adjustments.json");
+// A signed-in creator's actual saved edits (Dashboard's recent-activity
+// list) — separate from TRAINING_MANIFEST_PATH's style-training corpus.
+// Lives at CACHE_DIR's top level for the same survives-a-reset reason as
+// ANALYSIS_MANIFEST_PATH.
+export const PROJECTS_MANIFEST_PATH = path.join(CACHE_DIR, "projects.json");
 
 for (const dir of [UPLOADS_DIR, RENDERS_DIR, TMP_DIR, CACHE_DIR, TRAINING_DIR, TRAINING_FILES_DIR]) {
   fs.mkdirSync(dir, { recursive: true });

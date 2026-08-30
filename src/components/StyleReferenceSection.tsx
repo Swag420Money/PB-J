@@ -16,7 +16,7 @@ export function StyleReferenceSection({ url, onUrlChange }: StyleReferenceSectio
         type="url"
         inputMode="url"
         className="pbj-style-ref__input"
-        placeholder="paste a reference video link…"
+        placeholder="Paste a Reference Video Link…"
         value={url}
         onChange={(e) => onUrlChange(e.target.value)}
       />

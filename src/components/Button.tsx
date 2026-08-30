@@ -2,7 +2,10 @@ import type { ButtonHTMLAttributes, ReactNode } from "react";
 import "./Button.css";
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "outline" | "ghost" | "danger";
+  /** primary = black fill (the one CTA a screen owns). secondary = white
+   *  fill, bordered. text = no fill/border, quiet — for text-link-weight
+   *  actions (dismiss, "cancel anyway", toggle links). */
+  variant?: "primary" | "secondary" | "text";
   fullWidth?: boolean;
   icon?: ReactNode;
 }

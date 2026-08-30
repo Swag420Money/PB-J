@@ -1,0 +1,258 @@
+.pbj-np2 {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pbj-bg);
+}
+
+/* flex:1 pins .pbj-np2__footer (the mic/caption/CTA cluster) to the true
+   viewport bottom. Everything inside .body — hero, prompt, grid — is
+   top-anchored (default flex-start, no centering), so whatever slack is
+   left collects as ONE gap right after the grid, before the footer
+   cluster starts — not split across multiple floating gaps. */
+.pbj-np2__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pbj-content-top) var(--pbj-gutter) 0;
+}
+
+.pbj-np2__hero {
+  text-align: center;
+  animation: pbj-slide-up 0.5s var(--pbj-ease);
+}
+
+.pbj-np2__title {
+  font-size: var(--pbj-type-header-size);
+  font-weight: var(--pbj-type-header-weight);
+  letter-spacing: var(--pbj-type-header-tracking);
+  line-height: var(--pbj-type-header-line);
+  color: var(--pbj-text);
+  text-align: center;
+  margin: 0;
+}
+
+/* ---- recipe (draft.prompt) — plain text on a blank page, not a field ---- */
+/* No border/fill/card/shadow of any kind. Body-text scale, not headline
+   scale — this reads as a second heavy bold block stacked under the
+   headline at title-size, so it's regular weight, smaller, and airier.
+   Caret is black, not iOS system blue (#007AFF) — this screen is
+   otherwise strictly monochrome (no purple, no other color), and a lone
+   blue caret would read as a stray foreign accent against that; black
+   keeps the caret consistent with every other "attention" color already
+   used here (selected-tile border, mic fill, CTA). Flagged in the task
+   report as a judgment call between the two options the spec allowed. */
+.pbj-np2__prompt {
+  width: 100%;
+  box-sizing: border-box;
+  margin: var(--pbj-space-3) 0 0;
+  border: none;
+  background: transparent;
+  box-shadow: none;
+  outline: none;
+  padding: 0;
+  resize: none;
+  /* Auto-grows in JS up to PROMPT_MAX_HEIGHT_PX (5 lines), then scrolls
+     internally — this max-height is a defensive mirror of that JS cap,
+     not the primary mechanism. */
+  max-height: 133px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", var(--pbj-font);
+  font-size: 19px;
+  font-weight: 400;
+  line-height: 1.4;
+  letter-spacing: normal;
+  color: rgba(0, 0, 0, 0.9);
+  caret-color: #000;
+}
+
+.pbj-np2__prompt::placeholder {
+  /* iOS's native UIColor.placeholderText light-mode value, exactly. */
+  color: rgba(60, 60, 67, 0.3);
+}
+
+/* No focus ring, no border-on-focus, no background change — the caret is
+   the only focus indicator. (No :focus rule at all is the correct rule.) */
+
+/* ---- style grid — 3-across, wraps, no scroll/peek ---- */
+/* Same grid the Screen 1 clip tray uses: 1fr columns (square tiles fall
+   out of the math via aspect-ratio, no hardcoded px), capped at 2 visible
+   rows (242px = 226px of tiles + 8px padding each side, same derivation
+   as Screen 1's clip grid — identical 390px content width and gutter, so
+   the same numbers apply) with vertical scroll INSIDE the grid beyond
+   that. The old horizontal scroll-row and its peeking 4th tile are gone
+   entirely — nothing is hidden off-edge anymore. */
+.pbj-np2__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--pbj-space-1);
+  margin-top: var(--pbj-space-4);
+  max-height: 242px;
+  padding: var(--pbj-space-1);
+  margin-left: calc(-1 * var(--pbj-space-1));
+  margin-right: calc(-1 * var(--pbj-space-1));
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.pbj-np2__tile {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border-radius: var(--pbj-card-radius);
+  overflow: hidden;
+  border: none;
+  padding: 0;
+  background: var(--pbj-surface);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 0.15s var(--pbj-ease), box-shadow 0.15s var(--pbj-ease);
+}
+
+.pbj-np2__tile-image {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+}
+
+/* Same readability trick as the clip thumbnails' duration pill, but as a
+   gradient scrim instead of a solid bar, so it reads as light falling off
+   rather than a bar sitting on top of the image. */
+.pbj-np2__tile-scrim {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.55) 100%);
+}
+
+.pbj-np2__tile-name {
+  position: absolute;
+  left: var(--pbj-space-1);
+  bottom: 7px;
+  color: #fff;
+  font-size: 12.5px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.pbj-np2__tile-badge {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  color: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--pbj-shadow-sm);
+}
+
+/* Selection: black inset border + a soft neutral outer ring — no purple,
+   no colored halo. Unambiguous at a glance across a row of 3. */
+.pbj-np2__tile--selected {
+  box-shadow:
+    inset 0 0 0 2px #000,
+    0 0 0 5px rgba(0, 0, 0, 0.10);
+}
+
+/* Cap (3) reached: remaining unselected tiles mute instead of erroring.
+   `disabled` on the button already makes them non-tappable. */
+.pbj-np2__tile--muted {
+  opacity: 0.45;
+}
+
+/* ---- bottom cluster: mic, caption, CTA — one pinned unit ---- */
+.pbj-np2__mic-cluster {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.pbj-np2__mic-caption {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(60, 60, 67, 0.6);
+}
+
+/* Light iOS secondarySystemFill, dark glyph — a quiet secondary
+   affordance, not a second heavy black circle competing with the CTA.
+   Only the CTA stays the one heavy element on this screen. */
+.pbj-np2__mic {
+  position: relative;
+  width: 68px;
+  height: 68px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: rgba(120, 120, 128, 0.12);
+  color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  /* Overshoot bezier — the closest a pure CSS transition gets to a native
+     spring, per spec ("iOS-style, not a linear transition"). */
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background 0.15s var(--pbj-ease);
+}
+
+.pbj-np2__mic:active {
+  background: rgba(120, 120, 128, 0.2);
+  transform: scale(0.96);
+}
+
+.pbj-np2__mic-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 2px solid rgba(120, 120, 128, 0.3);
+  pointer-events: none;
+  animation: pbj-mic-pulse 1.6s ease-out infinite;
+}
+
+.pbj-np2__mic-ring--delay {
+  animation-delay: 0.8s;
+}
+
+@keyframes pbj-mic-pulse {
+  from {
+    transform: scale(1);
+    opacity: 0.35;
+  }
+  to {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pbj-np2__mic {
+    transition: none;
+  }
+  .pbj-np2__mic-ring {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+/* ---- footer: mic cluster + CTA, tight consistent spacing ---- */
+/* Same bottom padding as every other screen: env(safe-area-inset-bottom)
+   + 16px, 56px button height — unchanged for the CTA itself. */
+.pbj-np2__footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pbj-space-2);
+  padding: var(--pbj-space-3) var(--pbj-gutter) calc(var(--pbj-safe-bottom) + var(--pbj-space-2));
+}

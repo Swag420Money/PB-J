@@ -10,7 +10,7 @@ export function PromptBox({ value, onChange }: PromptBoxProps) {
     <div className="pbj-promptbox">
       <textarea
         className="pbj-promptbox__input"
-        placeholder="describe the edit you want…"
+        placeholder="Describe the Edit You Want…"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         rows={4}

@@ -1,0 +1,107 @@
+.pbj-cooking {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pbj-bg);
+  position: relative;
+}
+
+.pbj-cooking__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--pbj-space-4);
+  padding: var(--pbj-content-top) var(--pbj-gutter) var(--pbj-gutter);
+}
+
+.pbj-cooking__narration {
+  font-size: var(--pbj-type-body-size);
+  font-weight: var(--pbj-type-body-weight);
+  color: var(--pbj-text);
+  text-align: center;
+  padding: var(--pbj-space-1) var(--pbj-space-2);
+  animation: pbj-slide-up 0.35s var(--pbj-ease);
+  min-height: 36px;
+}
+
+.pbj-cooking__narration--echo {
+  color: var(--pbj-text-muted);
+  font-weight: 500;
+  font-style: italic;
+  margin: 0;
+}
+
+.pbj-cooking__controls {
+  display: flex;
+  gap: var(--pbj-space-3);
+  margin-top: -8px;
+}
+
+/* The safe control (back to New Project) is bolder/darker than the
+   abandon one — same "safe carries the weight" principle as the confirm
+   dialog below, just expressed in text color instead of fill. */
+.pbj-cooking__control-safe {
+  color: var(--pbj-text);
+  font-weight: 600;
+}
+
+.pbj-cooking__push {
+  padding: var(--pbj-space-2) var(--pbj-gutter) calc(var(--pbj-safe-bottom) + var(--pbj-space-2));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pbj-space-1);
+  text-align: center;
+  border-top: 1px solid var(--pbj-border);
+}
+
+.pbj-cooking__push-benefit {
+  font-size: var(--pbj-type-caption-size);
+  color: var(--pbj-text-muted);
+  margin: 0;
+}
+
+.pbj-cooking__push-confirmed {
+  font-size: var(--pbj-type-caption-size);
+  font-weight: 700;
+  color: var(--pbj-success);
+  margin: 0;
+}
+
+.pbj-cooking__confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  background: var(--pbj-overlay-scrim);
+  display: flex;
+  align-items: flex-end;
+  z-index: 20;
+}
+
+.pbj-cooking__confirm {
+  width: 100%;
+  background: var(--pbj-surface-elevated);
+  border-radius: var(--pbj-radius-xl) var(--pbj-radius-xl) 0 0;
+  padding: var(--pbj-space-3) var(--pbj-gutter) calc(var(--pbj-safe-bottom) + var(--pbj-space-2));
+  display: flex;
+  flex-direction: column;
+  gap: var(--pbj-space-button);
+  animation: pbj-slide-up 0.25s var(--pbj-ease);
+}
+
+.pbj-cooking__confirm-text {
+  font-size: var(--pbj-type-body-size);
+  font-weight: var(--pbj-type-body-weight);
+  color: var(--pbj-text);
+  text-align: center;
+  margin: 0 0 var(--pbj-space-1);
+}
+
+/* The safe choice ("keep cooking") uses the default Button primary — bold,
+   full-width, first in DOM. The destructive one ("cancel anyway") is a
+   quiet text-link underneath it, tinted red so it still reads as the
+   dangerous option without competing for visual weight. */
+.pbj-cooking__confirm-danger-text {
+  color: var(--pbj-danger);
+}

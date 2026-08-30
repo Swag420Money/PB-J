@@ -48,7 +48,7 @@ export function ReasoningSheet({ open, onClose, plan }: ReasoningSheetProps) {
           <p className="pbj-reasoning__empty">No reasoning available for this plan.</p>
         )}
 
-        <Button fullWidth variant="outline" onClick={onClose}>
+        <Button fullWidth variant="secondary" onClick={onClose}>
           close
         </Button>
       </div>

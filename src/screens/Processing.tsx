@@ -34,7 +34,7 @@ export function Processing({ step }: { step: ProcessingStep | null }) {
           <span className="pbj-processing__float pbj-processing__float--a">🎬</span>
           <span className="pbj-processing__float pbj-processing__float--b">✨</span>
           <div className="pbj-processing__mark-glow" />
-          <img src="/logo.jpg" alt="" className="pbj-processing__mark" />
+          <img src="/sandwich-logo.png" alt="" className="pbj-processing__mark" />
           <svg className="pbj-processing__ring" width="128" height="128" viewBox="0 0 128 128">
             <circle
               cx="64"

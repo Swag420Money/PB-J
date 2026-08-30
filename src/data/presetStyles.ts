@@ -9,8 +9,8 @@ export interface PresetStyle {
 }
 
 export const PRESET_STYLES: PresetStyle[] = [
-  { id: "preset_cinematic", name: "Cinematic Warm", emoji: "🎬", description: "Slow cuts, warm grade" },
-  { id: "preset_vlog", name: "Fast Vlog Cuts", emoji: "⚡", description: "Punchy jump cuts" },
-  { id: "preset_studio", name: "Clean Studio", emoji: "✨", description: "Minimal, steady pacing" },
-  { id: "preset_retro", name: "Retro Film Grain", emoji: "📼", description: "Grainy, nostalgic tones" },
+  { id: "preset_cinematic", name: "Cinematic Warm", emoji: "🎬", description: "Slow Cuts, Warm Grade" },
+  { id: "preset_vlog", name: "Fast Vlog Cuts", emoji: "⚡", description: "Punchy Jump Cuts" },
+  { id: "preset_studio", name: "Clean Studio", emoji: "✨", description: "Minimal, Steady Pacing" },
+  { id: "preset_retro", name: "Retro Film Grain", emoji: "📼", description: "Grainy, Nostalgic Tones" },
 ];

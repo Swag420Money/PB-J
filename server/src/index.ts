@@ -7,6 +7,7 @@ import os from "node:os";
 import fs from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import { clerkMiddleware, getAuth } from "@clerk/express";
+import { listProjectsForUser, saveProject } from "./projectsStore.js";
 
 import { UPLOADS_DIR, RENDERS_DIR, TMP_DIR, TRAINING_FILES_DIR, ANALYSIS_MANIFEST_PATH } from "./paths.js";
 import { probe, compressForUnderstanding, trimAndNormalize, concatSegments, remuxFaststart, type FitMode } from "./ffmpeg.js";
@@ -446,7 +447,29 @@ app.post("/api/render", async (req, res) => {
     await fs.rm(jobDir, { recursive: true, force: true });
 
     log(`render complete: ${outputFileName}`);
-    res.json({ videoUrl: `/api/renders/${renderId}/file` });
+    const videoUrl = `/api/renders/${renderId}/file`;
+
+    // Only the initial preview render (no exportOptions) represents "a new
+    // project was made" — re-exporting an already-finished edit at a
+    // different resolution/aspect ratio (ExportSheet) re-hits this same
+    // route with exportOptions set and shouldn't create a second Dashboard
+    // entry for the same edit.
+    if (!exportOptions) {
+      const { userId } = getAuth(req);
+      if (userId) {
+        const durationSec = clips.reduce((sum, c) => sum + Math.max(0, c.sourceOutSec - c.sourceInSec), 0);
+        const name = typeof req.body?.name === "string" && req.body.name.trim() ? req.body.name.trim() : "Untitled edit";
+        await saveProject({ id: renderId, userId, name, createdAt: new Date().toISOString(), durationSec, videoUrl });
+      } else {
+        // Shouldn't normally happen — every request reaching this route
+        // came from the Clerk-gated frontend, which always has a session
+        // to attach — but don't let a missing/expired token break the
+        // render itself, just skip persisting it to anyone's dashboard.
+        log(`render ${renderId} completed with no authenticated user — not saved to any Dashboard`);
+      }
+    }
+
+    res.json({ videoUrl });
   } catch (err) {
     await fs.rm(jobDir, { recursive: true, force: true }).catch(() => {});
     log(`render failed: ${(err as Error).message}`);
@@ -737,6 +760,18 @@ app.get("/api/auth/whoami", (req, res) => {
     return;
   }
   res.json({ userId });
+});
+
+// Backs the Dashboard's recent-activity list — real saved projects for the
+// signed-in user only, never mockProjects.ts.
+app.get("/api/projects", async (req, res) => {
+  const { userId } = getAuth(req);
+  if (!userId) {
+    res.status(401).json({ error: "Not signed in" });
+    return;
+  }
+  const projects = await listProjectsForUser(userId);
+  res.json({ projects });
 });
 
 function lanAddress(): string | null {
