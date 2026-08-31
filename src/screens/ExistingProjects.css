@@ -64,6 +64,20 @@
   margin: 5px;
 }
 
+/* Top-trailing corner — iOS system blue, matching Mail/Photos exactly
+   rather than the app's own purple accent; this is a system convention
+   the creator already knows, not a brand moment. */
+.pbj-projects__unread-dot {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #007aff;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.35);
+}
+
 .pbj-projects__meta {
   display: flex;
   align-items: center;

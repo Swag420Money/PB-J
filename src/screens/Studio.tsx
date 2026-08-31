@@ -8,6 +8,7 @@ import {
   REVISION_PROMPT_PLACEHOLDER,
   REVISION_PROMPT_PLACEHOLDER_CLIP,
   PLACEHOLDER_CLIP_GRADIENTS,
+  getEditExplanation,
 } from "../data/placeholders";
 import type { UploadedClip } from "../state/useAppFlow";
 import { formatTimestampPadded } from "../utils/format";
@@ -171,6 +172,9 @@ export function Studio({
   onBack,
   initialClips,
   creatorStyles,
+  prompt,
+  styleIds,
+  onFirstPlay,
 }: {
   onBack: () => void;
   initialClips: UploadedClip[];
@@ -179,10 +183,24 @@ export function Studio({
    *  not project-level, so it's the same regardless of which project is
    *  open. Empty if the creator skipped that step. */
   creatorStyles: string[];
+  /** The recipe text and ingredients from New Project screen 2 — drives
+   *  the edit-explanation line (see getEditExplanation). Empty for the
+   *  one path with no real draft behind it (opening an existing project
+   *  from the mock Existing Projects list). */
+  prompt: string;
+  styleIds: string[];
+  /** Fires once, the first time playback actually starts (not on mount,
+   *  not on merely opening this screen) — the signal My Projects' unread
+   *  dot waits for. Tapping in and backing out without pressing play must
+   *  leave the dot in place. Optional: the only caller that cares is the
+   *  My Projects → Studio path. */
+  onFirstPlay?: () => void;
 }) {
   const [clips, setClips] = useState<WorkingClip[]>(() =>
     initialClips.length > 0 ? toWorkingClipsFromReal(initialClips) : toMockWorkingClips()
   );
+  const [explanationExpanded, setExplanationExpanded] = useState(false);
+  const editExplanation = getEditExplanation(prompt, styleIds);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [toolPanel, setToolPanel] = useState<ToolTab | null>(null);
   const [draggingId, setDraggingId] = useState<string | null>(null);
@@ -362,8 +380,16 @@ export function Studio({
   }, []);
 
   // ---- playback: auto-scroll the timeline + advance the clock ----
+  const hasFiredFirstPlayRef = useRef(false);
   function togglePlay() {
-    setIsPlaying((p) => !p);
+    setIsPlaying((p) => {
+      const next = !p;
+      if (next && !hasFiredFirstPlayRef.current) {
+        hasFiredFirstPlayRef.current = true;
+        onFirstPlay?.();
+      }
+      return next;
+    });
   }
 
   useLayoutEffect(() => {
@@ -894,6 +920,30 @@ export function Studio({
 
       {/* Zone 2 — receipt line + transport row, directly under the preview. */}
       <section className="pbj-studio__receipt-transport">
+        {/* Edit explanation — collapsed to one plain sentence by default,
+            always. No card/border/icon/fill: it must cost almost nothing
+            visually until tapped. Stays visible regardless of clip
+            selection (unlike the receipt line below it) since it's
+            explaining the WHOLE edit, not something tied to one clip. */}
+        <button
+          type="button"
+          className="pbj-studio__edit-explanation"
+          onClick={() => setExplanationExpanded((v) => !v)}
+          aria-expanded={explanationExpanded}
+        >
+          <span className="pbj-studio__edit-explanation-summary">{editExplanation.summary}</span>
+          <span
+            className={
+              "pbj-studio__edit-explanation-reasoning-wrap" +
+              (explanationExpanded ? " pbj-studio__edit-explanation-reasoning-wrap--expanded" : "")
+            }
+          >
+            <span className="pbj-studio__edit-explanation-reasoning-inner">
+              <span className="pbj-studio__edit-explanation-reasoning">{editExplanation.reasoning}</span>
+            </span>
+          </span>
+        </button>
+
         {!selectedClip && (
           <Placeholder inline className="pbj-studio__summary-wrap">
             <p className="pbj-studio__summary">{EDIT_RECEIPT}</p>

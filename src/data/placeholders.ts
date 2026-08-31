@@ -57,30 +57,66 @@ export const PLACEHOLDER_CLIP_GRADIENTS = [
 
 // New project screen 2: the creator's own trained styles (not generic
 // presets — those were cut). Real content shape, fake data until there's a
-// real trained-style backend; thumbnail reuses PLACEHOLDER_CLIP_GRADIENTS
-// (cycled) as a stand-in frame, same as the clip tiles above. isDefault
-// distinguishes system-shipped styles from a creator's own trained ones —
-// all 6 are defaults for now; there's no user-trained style yet to compare
-// against, so no visual sectioning is needed (see NewProjectPrompt).
+// real trained-style backend. isDefault distinguishes system-shipped
+// styles from a creator's own trained ones — all 6 are defaults for now;
+// there's no user-trained style yet to compare against, so no visual
+// sectioning is needed (see NewProjectPrompt). phrase is the short,
+// lowercase description shown under the style name once it's added to
+// the ingredients list — kept here rather than inline in the component so
+// content and component stay separate.
 export interface TrainedStyle {
   id: string;
   label: string;
-  thumbnail: string;
+  phrase: string;
   isDefault: boolean;
 }
 
 export const TRAINED_STYLES: TrainedStyle[] = [
-  { id: "fast-punchy", label: "Fast & Punchy", thumbnail: PLACEHOLDER_CLIP_GRADIENTS[0], isDefault: true },
-  { id: "clean", label: "Clean", thumbnail: PLACEHOLDER_CLIP_GRADIENTS[1], isDefault: true },
-  { id: "loud", label: "Loud", thumbnail: PLACEHOLDER_CLIP_GRADIENTS[2], isDefault: true },
-  { id: "slow-burn", label: "Slow Burn", thumbnail: PLACEHOLDER_CLIP_GRADIENTS[0], isDefault: true },
-  { id: "talky", label: "Talky", thumbnail: PLACEHOLDER_CLIP_GRADIENTS[1], isDefault: true },
-  { id: "chaotic", label: "Chaotic", thumbnail: PLACEHOLDER_CLIP_GRADIENTS[2], isDefault: true },
+  { id: "fast-punchy", label: "Fast & Punchy", phrase: "quick cuts, tight pacing, no dead air", isDefault: true },
+  { id: "clean", label: "Clean", phrase: "simple cuts, let it breathe, minimal effects", isDefault: true },
+  { id: "loud", label: "Loud", phrase: "punch in hard, big captions, high energy", isDefault: true },
+  { id: "slow-burn", label: "Slow Burn", phrase: "long takes, slow build, patient pacing", isDefault: true },
+  { id: "talky", label: "Talky", phrase: "cut to the talking, trim every pause", isDefault: true },
+  { id: "chaotic", label: "Chaotic", phrase: "fast zooms, hard cuts, keep it unpredictable", isDefault: true },
 ];
 
-// ---- Home: fake render-in-progress toggle ------------------------------
-// Flip to true to demo the "your edit is cooking" strip on Home.
-export const RENDER_IN_PROGRESS = false;
+// Studio's edit-explanation line (collapsed summary + expanded per-
+// ingredient reasoning). Both fields are plain English — no kitchen
+// language — since this is an instruction surface, not marketing copy.
+export interface EditExplanation {
+  summary: string;
+  reasoning: string;
+}
+
+const NO_INGREDIENTS_EXPLANATION: EditExplanation = {
+  summary: "cut to match your recipe, no ingredients applied",
+  reasoning: "No ingredients were added, so pacing and cuts followed your written recipe alone.",
+};
+
+// SWAP POINT: stands in for whatever Paul's real generation engine
+// returns alongside the rendered video — a real explanation of the
+// edit it actually made, not one synthesized from the inputs after the
+// fact. This placeholder can only work from what's already available
+// client-side (the selected ingredients' own phrase copy), so `prompt`
+// is accepted for interface parity with what the real engine will need
+// but isn't actually used yet — there's no real language understanding
+// here to fold the freeform text into a sentence honestly. Replace this
+// whole function with a read of the real engine's returned explanation
+// field; delete prompt/styleIds-based synthesis entirely once that
+// exists.
+export function getEditExplanation(prompt: string, styleIds: string[]): EditExplanation {
+  void prompt;
+  const styles = styleIds
+    .map((id) => TRAINED_STYLES.find((s) => s.id === id))
+    .filter((s): s is TrainedStyle => s !== undefined);
+
+  if (styles.length === 0) return NO_INGREDIENTS_EXPLANATION;
+
+  return {
+    summary: styles.map((s) => s.phrase).join(", "),
+    reasoning: styles.map((s) => `${s.label} — ${s.phrase}.`).join(" "),
+  };
+}
 
 // ---- Cooking ----------------------------------------------------------
 // How long the fake progress animation takes to reach 100%. Isolated here
@@ -88,16 +124,25 @@ export const RENDER_IN_PROGRESS = false;
 // progress source later is a one-hook change, not a component rewrite.
 export const FAKE_COOKING_DURATION_MS = 9000;
 
-// Each line names something specific rather than a generic verb; the last
-// one lands on possession ("making yours"), not process — matching the
-// specific, second-person, observational voice of TEACH_IT_OBSERVATIONS.
+// Rotates every ~3s in the status block's "current action" line — see
+// Cooking.tsx. Exact copy from the redesign task spec; lowercase-first
+// sentence case (not Title Case) is deliberate here, matching how iOS
+// itself writes transient status text (e.g. "Updating…", not "Updating
+// Now"), not this app's usual title-case convention.
 export const COOKING_NARRATION = [
-  "Counting Your Cuts",
-  "Clocking Your Reactions",
-  "Reading Your Pace",
-  "Matching Your Style",
-  "Making Yours",
+  "Analyzing your footage",
+  "Matching your pace",
+  "Chopping your clips",
+  "Seasoning the cut",
+  "Almost ready",
 ];
+
+// Placeholder ETA, in minutes, for the status block's "~X min left" line
+// — there's no real render-time estimate yet. SWAP POINT: once Paul's
+// engine can report a real ETA, replace every read of this constant with
+// that value (or the "Estimating…"/"Order coming up" fallback states)
+// wired through the same prop Cooking.tsx already takes progress on.
+export const FAKE_ETA_MINUTES = 4;
 
 // ---- Projects grid ------------------------------------------------------
 export interface FakeProject {
@@ -105,15 +150,32 @@ export interface FakeProject {
   title: string;
   durationLabel: string;
   thumbGradient: string;
+  // True for a finished render the creator hasn't watched yet — drives the
+  // unread blue dot in My Projects (see ExistingProjects.tsx). Clears on
+  // actual playback in Studio, not on merely opening the row.
+  unread: boolean;
 }
 
 export const FAKE_PROJECTS: FakeProject[] = [
-  { id: "proj_1", title: "Beach Day Recap", durationLabel: "0:32", thumbGradient: "linear-gradient(160deg, #d1d1d6, #aeaeb2)" },
-  { id: "proj_2", title: "Weekend in Tulum", durationLabel: "0:45", thumbGradient: "linear-gradient(160deg, #c7c7cc, #8e8e93)" },
-  { id: "proj_3", title: "Studio Session", durationLabel: "0:28", thumbGradient: "linear-gradient(160deg, #aeaeb2, #636366)" },
-  { id: "proj_4", title: "Road Trip Edit", durationLabel: "1:02", thumbGradient: "linear-gradient(160deg, #e5e5ea, #c7c7cc)" },
-  { id: "proj_5", title: "Golden Hour", durationLabel: "0:38", thumbGradient: "linear-gradient(160deg, #8e8e93, #636366)" },
-  { id: "proj_6", title: "Friends Vlog", durationLabel: "0:51", thumbGradient: "linear-gradient(160deg, #d1d1d6, #8e8e93)" },
+  { id: "proj_1", title: "Beach Day Recap", durationLabel: "0:32", thumbGradient: "linear-gradient(160deg, #d1d1d6, #aeaeb2)", unread: false },
+  { id: "proj_2", title: "Weekend in Tulum", durationLabel: "0:45", thumbGradient: "linear-gradient(160deg, #c7c7cc, #8e8e93)", unread: false },
+  { id: "proj_3", title: "Studio Session", durationLabel: "0:28", thumbGradient: "linear-gradient(160deg, #aeaeb2, #636366)", unread: false },
+  { id: "proj_4", title: "Road Trip Edit", durationLabel: "1:02", thumbGradient: "linear-gradient(160deg, #e5e5ea, #c7c7cc)", unread: false },
+  { id: "proj_5", title: "Golden Hour", durationLabel: "0:38", thumbGradient: "linear-gradient(160deg, #8e8e93, #636366)", unread: false },
+  { id: "proj_6", title: "Friends Vlog", durationLabel: "0:51", thumbGradient: "linear-gradient(160deg, #d1d1d6, #8e8e93)", unread: false },
+];
+
+// Cycled by id hash for a freshly-finished render's thumbnail — there's no
+// real frame to grab yet, so this just keeps new project cards visually
+// consistent with the hand-picked gradients above rather than defaulting
+// to one repeated color.
+export const PROJECT_THUMB_GRADIENTS = [
+  "linear-gradient(160deg, #d1d1d6, #aeaeb2)",
+  "linear-gradient(160deg, #c7c7cc, #8e8e93)",
+  "linear-gradient(160deg, #aeaeb2, #636366)",
+  "linear-gradient(160deg, #e5e5ea, #c7c7cc)",
+  "linear-gradient(160deg, #8e8e93, #636366)",
+  "linear-gradient(160deg, #d1d1d6, #8e8e93)",
 ];
 
 // ---- Studio: mock AI-arranged timeline ---------------------------------

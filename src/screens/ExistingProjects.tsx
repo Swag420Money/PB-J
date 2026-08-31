@@ -2,19 +2,24 @@ import { useEffect, useState } from "react";
 import { BackButton } from "../components/BackButton";
 import { Button } from "../components/Button";
 import { Placeholder } from "../components/Placeholder";
-import { FAKE_PROJECTS, type FakeProject } from "../data/placeholders";
+import type { FakeProject } from "../data/placeholders";
 import "./ExistingProjects.css";
 
 const DELETE_TOAST_MS = 2200;
 
 export function ExistingProjects({
+  projects,
   onBack,
   onOpenProject,
+  onRenameProject,
+  onDeleteProject,
 }: {
+  projects: FakeProject[];
   onBack: () => void;
-  onOpenProject: () => void;
+  onOpenProject: (id: string) => void;
+  onRenameProject: (id: string, title: string) => void;
+  onDeleteProject: (id: string) => void;
 }) {
-  const [projects, setProjects] = useState<FakeProject[]>(FAKE_PROJECTS);
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
   const [renamingId, setRenamingId] = useState<string | null>(null);
   const [renameValue, setRenameValue] = useState("");
@@ -29,9 +34,8 @@ export function ExistingProjects({
 
   function confirmRename() {
     if (!renamingId) return;
-    setProjects((prev) =>
-      prev.map((p) => (p.id === renamingId ? { ...p, title: renameValue.trim() || p.title } : p))
-    );
+    const current = projects.find((p) => p.id === renamingId);
+    onRenameProject(renamingId, renameValue.trim() || current?.title || "");
     setRenamingId(null);
   }
 
@@ -46,8 +50,7 @@ export function ExistingProjects({
 
   function confirmDelete() {
     if (!deletingProject) return;
-    const id = deletingProject.id;
-    setProjects((prev) => prev.filter((p) => p.id !== id));
+    onDeleteProject(deletingProject.id);
     setDeletingProject(null);
     setToast("Project Deleted.");
     setTimeout(() => setToast(null), DELETE_TOAST_MS);
@@ -68,7 +71,7 @@ export function ExistingProjects({
       <BackButton onClick={onBack} className="pbj-back-btn--floating" />
 
       <div className="pbj-projects__body">
-        <h1 className="pbj-projects__title">Your Projects</h1>
+        <h1 className="pbj-projects__title">My Projects</h1>
 
         {projects.length === 0 ? (
           <div className="pbj-projects__empty">
@@ -84,8 +87,12 @@ export function ExistingProjects({
                     type="button"
                     className="pbj-projects__thumb"
                     style={{ background: p.thumbGradient }}
-                    onClick={onOpenProject}
+                    onClick={() => onOpenProject(p.id)}
                   >
+                    {/* iOS unread convention (Mail, Photos) — clears on
+                        actual playback in Studio, not on merely opening
+                        this row; see Studio's onFirstPlay. */}
+                    {p.unread && <span className="pbj-projects__unread-dot" aria-label="Unread" />}
                     <span className="pbj-projects__duration">{p.durationLabel}</span>
                   </button>
                   <div className="pbj-projects__meta">

@@ -1,4 +1,4 @@
-import { useUser, useClerk } from "@clerk/clerk-react";
+import { useUser } from "@clerk/clerk-react";
 import { TopBar } from "../components/TopBar";
 import { Button } from "../components/Button";
 import { UsageMeter } from "../components/UsageMeter";
@@ -15,9 +15,8 @@ function getInitials(fullName: string, email: string): string {
   return source.slice(0, 2).toUpperCase();
 }
 
-export function Settings({ onBack }: { onBack: () => void }) {
+export function Settings({ onBack, onSignOut }: { onBack: () => void; onSignOut: () => void }) {
   const { user } = useUser();
-  const { signOut } = useClerk();
 
   const email = user?.primaryEmailAddress?.emailAddress ?? "";
   const initials = getInitials(user?.fullName ?? "", email);
@@ -53,7 +52,7 @@ export function Settings({ onBack }: { onBack: () => void }) {
 
         <UsageMeter />
 
-        <Button variant="secondary" fullWidth onClick={() => signOut()}>
+        <Button variant="secondary" fullWidth onClick={onSignOut}>
           Sign Out
         </Button>
       </div>

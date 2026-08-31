@@ -25,22 +25,67 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: var(--pbj-space-subhead-content);
   padding: var(--pbj-content-top) var(--pbj-gutter) 0;
 }
 
+/* No more justify-content:center — with the picker replaced by the much
+   shorter slider, centering split the extra slack into two roughly-equal
+   dead gaps (above the grid, and again below the slider before Next).
+   Content now stacks from the top at its natural size; margin-top:auto
+   on .pbj-np1__section--duration (the slider's own section) claims ALL
+   the leftover space in one place, right before it, so the slider always
+   sits close to Next — a fixed, small gap (the footer's own top padding)
+   — regardless of how much slack there is, rather than a gap that grows
+   with it. Same "hug the thing right before the CTA" pattern as Screen
+   2's mic/caption cluster. */
 .pbj-np1__middle {
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: var(--pbj-space-4);
+}
+
+/* Conditional — only rendered at all when remaining allowance drops
+   below 20%. Text only, no bar/ring/red per spec. Sits with .middle's
+   own normal 32px gap on both sides now (no auto margin of its own) —
+   see .pbj-np1__middle > .pbj-np1__section:first-child below for where
+   the slack actually goes now that the footage-total line (this text's
+   old sibling) is gone. */
+.pbj-np1__footage-balance {
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(60, 60, 67, 0.6);
+  margin: 0;
+  text-align: center;
 }
 
 .pbj-np1__section {
   display: flex;
   flex-direction: column;
   gap: var(--pbj-space-1);
+}
+
+/* The grid/dropzone section specifically (first child of .middle) — not
+   the duration section, which reuses the same base class. flex:1 lets
+   this box itself grow to fill whatever vertical slack .middle has,
+   with its own content (dropzone or grid) centered inside that grown
+   box via justify-content:center. That's what closes the "massive dead
+   gap between the grid and the duration block": previously the slack
+   collected as one bare gap somewhere in the middle of the layout,
+   dead space with nothing in it; now it's absorbed INSIDE this section's
+   own box, around its content, so the grid, the low-balance line (if
+   present), and the duration block all sit close together with .middle's
+   normal fixed 32px gaps between them — one continuous composition
+   instead of two clusters either side of a void. Duration still ends up
+   close to the footer as a direct consequence (this section eating the
+   slack pushes everything after it down to the bottom of .middle's box)
+   without needing a margin-top:auto of its own. Verified at both 1 clip
+   and a full 2-row grid — see the task report. */
+.pbj-np1__middle > .pbj-np1__section:first-child {
+  flex: 1;
+  justify-content: center;
 }
 
 /* ---- title (editable headline) ---- */
@@ -132,23 +177,26 @@
    out of the math for free: aspect-ratio:1/1 on each tile makes height
    track the 1fr-computed width, no hardcoded px needed.
 
-   Capped at 2 visible rows (226px = 2 tile-heights + 1 row-gap at the
-   390px target: tile ~108.67px, gap 8px -> 2*108.67+8=225.33, rounded up)
-   — beyond 6 clips the grid scrolls vertically WITHIN ITS OWN BOUNDS,
-   never the page, and never pushes the slider/Next button off screen. */
+   width:100% + box-sizing:border-box, no margin/padding tricks — the
+   previous version bled the grid outward via a negative margin (to give
+   the delete badge's -6px corner offset room without the scroll
+   container clipping it) and that's the prime suspect for both real-
+   device bugs this fixes: a negative margin on a flex-stretched item is
+   exactly the kind of edge case WebKit and Blink can resolve differently
+   (symmetric in Chrome, one-sided in Safari — matching "left margin
+   correct, right tile overflows" exactly). Removing it entirely, rather
+   than trying to get the asymmetry to cancel out again, is the robust
+   fix. The badge no longer needs the clearance — see .pbj-np1__clip-delete.
+
+   max-height is set from JS (see the component), measured off the grid's
+   own actual rendered width — not assumed — so it's exactly 2 tile-rows
+   + 1 gap on whatever device it runs on, never a guess that could clip. */
 .pbj-np1__clip-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: var(--pbj-space-1);
-  /* 226px of tiles (2 rows) + 8px padding budget on each side so the
-     delete badge's -6px top/right offset never clips against the
-     container's own boundary (setting overflow-y here also computes
-     overflow-x to auto per spec, so both axes need the clearance, not
-     just the scrolling one). Interior badges are already covered by the
-     8px inter-tile gap. */
-  max-height: 242px;
-  padding: var(--pbj-space-1);
-  margin: calc(-1 * var(--pbj-space-1));
+  width: 100%;
+  box-sizing: border-box;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
 }
@@ -172,11 +220,17 @@
 }
 
 /* Sits on .pbj-np1__clip-tile-wrap (position:relative, overflow visible),
-   not on .pbj-np1__clip-tile (overflow:hidden) — see the JSX comment. */
+   not on .pbj-np1__clip-tile (overflow:hidden) — see the JSX comment.
+   Inset (not bled past the corner) on purpose: the grid scrolls
+   vertically (.pbj-np1__clip-grid's overflow-y:auto), and any negative
+   offset here would need the grid to carry extra clearance padding for
+   it — which is exactly the mechanism that caused the real-device
+   clipping/overflow bugs this fix addresses. A small positive inset reads
+   the same ("badge at the corner") without needing that clearance at all. */
 .pbj-np1__clip-delete {
   position: absolute;
-  top: -6px;
-  right: -6px;
+  top: 4px;
+  right: 4px;
   width: 20px;
   height: 20px;
   display: flex;
@@ -233,13 +287,6 @@
   font-weight: 400;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
-}
-
-.pbj-np1__footage-total {
-  font-size: var(--pbj-type-caption-size);
-  color: var(--pbj-text-muted);
-  margin: 0;
-  text-align: center;
 }
 
 .pbj-np1__warning {

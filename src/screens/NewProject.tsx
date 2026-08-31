@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { TIER_CAPS, CURRENT_TIER } from "../data/placeholders";
 import { readVideoDuration, captureVideoThumbnail } from "../utils/videoCapture";
 import type { NewProjectDraft, UploadedClip } from "../state/useAppFlow";
@@ -17,17 +17,19 @@ type Step = 1 | 2;
  */
 export function NewProject({
   initialDraft,
+  initialStep,
   onBack,
   onSubmit,
 }: {
   initialDraft: NewProjectDraft | null;
+  initialStep?: Step;
   onBack: () => void;
   onSubmit: (draft: NewProjectDraft) => void;
 }) {
   const tier = TIER_CAPS.find((t) => t.name === CURRENT_TIER)!;
   const footageCapSec = tier.footageHours * 60 * 60;
 
-  const [step, setStep] = useState<Step>(1);
+  const [step, setStep] = useState<Step>(initialStep ?? 1);
   const [title, setTitle] = useState(initialDraft?.title ?? "New Project");
   // Seeded from the draft (not always empty) so tapping "edit" from Cooking
   // returns to the exact clips — thumbnails included — the creator already
@@ -43,7 +45,10 @@ export function NewProject({
   const totalFootageSec = clips.reduce((sum, c) => sum + (c.durationSec ?? 0), 0);
   const isOverLimit = clips.length > 0 && totalFootageSec > footageCapSec;
 
-  async function addFiles(fileList: FileList | null) {
+  // Stable across renders (empty deps — each only closes over setClips,
+  // itself stable) so the memoized clip grid below can bail out of
+  // re-rendering when only durationSec changes during a slider drag.
+  const addFiles = useCallback(async (fileList: FileList | null) => {
     if (!fileList || fileList.length === 0) return;
     const files = Array.from(fileList);
     const newClips = await Promise.all(
@@ -61,15 +66,15 @@ export function NewProject({
       })
     );
     setClips((prev) => [...prev, ...newClips]);
-  }
+  }, []);
 
-  function removeLastClip() {
+  const removeLastClip = useCallback(() => {
     setClips((prev) => prev.slice(0, -1));
-  }
+  }, []);
 
-  function removeClip(id: string) {
+  const removeClip = useCallback((id: string) => {
     setClips((prev) => prev.filter((c) => c.id !== id));
-  }
+  }, []);
 
   function submit() {
     onSubmit({

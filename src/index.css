@@ -7,7 +7,19 @@
   --pbj-accent: #8b5cf6;
   --pbj-accent-2: #f2a65a;
 
-  --pbj-bg: #ffffff;
+  /* Vertical wash, lightest at top, warming toward the bottom — pulls from
+     the existing brand accents (jelly purple / toasted-bread orange)
+     rather than a generic tint. Applied here once, at the token every
+     screen's root already reads for its background — see the 20 screen
+     CSS files' `background: var(--pbj-bg);` — so this is the single
+     shared spot, not a per-screen change. Cards/surfaces use
+     --pbj-surface(-elevated), and the primary button is a literal #000,
+     so neither is affected by this. Two options kept side by side below;
+     only one is active (--pbj-bg-cream is currently applied) — swap which
+     one --pbj-bg aliases to switch. */
+  --pbj-bg-cream: linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--pbj-accent-2) 10%, white) 100%);
+  --pbj-bg-purple: linear-gradient(180deg, #ffffff 0%, color-mix(in srgb, var(--pbj-accent) 6%, white) 100%);
+  --pbj-bg: var(--pbj-bg-cream);
   --pbj-surface: #f5f5f5;
   --pbj-surface-elevated: #ffffff;
   --pbj-text: #1d1d1f;
@@ -219,23 +231,4 @@ textarea {
 .pbj-auth-loading {
   min-height: 100dvh;
   background: var(--pbj-bg);
-}
-
-/* Only ever rendered from the dev-only bypass path in App.tsx (behind
-   import.meta.env.DEV) — makes it unmistakable that a session reached via
-   the test-account shortcut isn't a real signed-in session. */
-.pbj-dev-badge {
-  position: fixed;
-  top: calc(var(--pbj-safe-top) + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 9999;
-  background: #000;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  padding: 4px 10px;
-  border-radius: var(--pbj-radius-pill);
-  pointer-events: none;
 }

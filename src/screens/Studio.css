@@ -104,10 +104,62 @@
   padding: var(--pbj-space-1) var(--pbj-gutter) var(--pbj-space-1);
 }
 
+/* Edit explanation — collapsed by default, always. Deliberately bare: no
+   card, border, icon, or background fill, so it costs almost nothing
+   visually until tapped. The whole button is the tap target. */
+.pbj-studio__edit-explanation {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 0;
+  margin: 0;
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pbj-studio__edit-explanation-summary {
+  display: block;
+  font-size: 14px;
+  font-weight: 400;
+  color: rgba(60, 60, 67, 0.6);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* grid-template-rows 0fr→1fr is what animates height without a JS
+   measurement pass — a plain height transition can't move to/from
+   "however tall the content turns out to be." Linear-ish ease, no
+   spring, per spec ("nothing bouncy"). */
+.pbj-studio__edit-explanation-reasoning-wrap {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 200ms var(--pbj-ease);
+}
+
+.pbj-studio__edit-explanation-reasoning-wrap--expanded {
+  grid-template-rows: 1fr;
+}
+
+.pbj-studio__edit-explanation-reasoning-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.pbj-studio__edit-explanation-reasoning {
+  display: block;
+  padding-top: 6px;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--pbj-text);
+}
+
 .pbj-studio__summary-wrap {
   display: block;
   width: 100%;
-  margin: 0;
+  margin: var(--pbj-space-1) 0 0;
 }
 
 /* The one-line "receipt" — a summary, not a disclosure, so it truncates

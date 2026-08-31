@@ -1,22 +1,27 @@
 import { Button } from "../components/Button";
-import { Placeholder } from "../components/Placeholder";
-import { RENDER_IN_PROGRESS } from "../data/placeholders";
+import { COOKING_NARRATION } from "../data/placeholders";
+import { useRenderProgress } from "../hooks/useRenderProgress";
+import { useRotatingIndex } from "../hooks/useRotatingIndex";
+import type { ActiveRender } from "../state/useAppFlow";
 import "./Home.css";
 
+const NARRATION_ROTATE_MS = 3000;
+
 interface HomeProps {
+  activeRenders: ActiveRender[];
   onNewProject: () => void;
   onOpenProjects: () => void;
   onOpenSettings: () => void;
-  onOpenCooking: () => void;
+  onOpenRender: (id: string) => void;
 }
 
 /**
  * Deliberately minimal, and deliberately the SAME on day one and day
- * ninety — no thumbnails, no usage meter, no legal text. The only thing
- * that ever changes here is the render-in-progress strip, and that's
- * driven by a fake flag (RENDER_IN_PROGRESS in placeholders.ts) this pass.
+ * ninety — the only thing that ever changes here is the in-progress
+ * section, and that's driven by real shared render state now (see
+ * useAppFlow's activeRenders), not a fake demo flag.
  */
-export function Home({ onNewProject, onOpenProjects, onOpenSettings, onOpenCooking }: HomeProps) {
+export function Home({ activeRenders, onNewProject, onOpenProjects, onOpenSettings, onOpenRender }: HomeProps) {
   return (
     <div className="pbj-home">
       <button
@@ -40,25 +45,45 @@ export function Home({ onNewProject, onOpenProjects, onOpenSettings, onOpenCooki
       <div className="pbj-home__center">
         <img src="/sandwich-logo.png" alt="pb&j" className="pbj-home__mark" />
 
-        {RENDER_IN_PROGRESS && (
-          <Placeholder className="pbj-home__cooking-strip-wrap">
-            <button type="button" className="pbj-home__cooking-strip" onClick={onOpenCooking}>
-              <span className="pbj-home__cooking-dot" />
-              Your Edit Is Cooking
-              <span className="pbj-home__cooking-arrow">›</span>
-            </button>
-          </Placeholder>
+        {/* Absent entirely — no empty state — when nothing is rendering.
+            One row per active render; a row disappears the instant its
+            render completes (see useAppFlow's completion watcher), no
+            "cleared" state to manage here. */}
+        {activeRenders.length > 0 && (
+          <div className="pbj-home__renders">
+            {activeRenders.map((render) => (
+              <HomeRenderRow key={render.id} render={render} onOpen={() => onOpenRender(render.id)} />
+            ))}
+          </div>
         )}
 
         <div className="pbj-home__actions">
-          <Button fullWidth onClick={onNewProject}>
+          <Button fullWidth onClick={() => onNewProject()}>
             New Project
           </Button>
           <Button fullWidth variant="secondary" onClick={onOpenProjects}>
-            Your Projects
+            My Projects
           </Button>
         </div>
       </div>
     </div>
+  );
+}
+
+function HomeRenderRow({ render, onOpen }: { render: ActiveRender; onOpen: () => void }) {
+  const progress = useRenderProgress(render);
+  const narrationIndex = useRotatingIndex(COOKING_NARRATION.length, NARRATION_ROTATE_MS);
+
+  return (
+    <button type="button" className="pbj-home__render-row" onClick={onOpen}>
+      <div className="pbj-home__render-top">
+        <span className="pbj-home__render-title">{render.title}</span>
+        <span className="pbj-home__render-percent">{progress}%</span>
+      </div>
+      <div className="pbj-home__render-track">
+        <div className="pbj-home__render-fill" style={{ width: `${progress}%` }} />
+      </div>
+      <span className="pbj-home__render-status">{COOKING_NARRATION[narrationIndex]}</span>
+    </button>
   );
 }
